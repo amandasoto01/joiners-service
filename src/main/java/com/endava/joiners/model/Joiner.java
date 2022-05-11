@@ -9,8 +9,7 @@ import javax.persistence.*;
 
 @Entity
 @Table( name = "joiners")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 public class Joiner {
 

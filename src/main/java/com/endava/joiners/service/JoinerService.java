@@ -4,7 +4,7 @@ import com.endava.joiners.DTO.JoinerDTO;
 import com.endava.joiners.mapper.JoinerMapper;
 import com.endava.joiners.model.Joiner;
 import com.endava.joiners.repository.JoinerRepository;
-import org.apache.coyote.Response;
+import io.vavr.control.Either;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,29 +18,35 @@ public class JoinerService {
     @Autowired
     JoinerRepository joinerRepository;
 
-    public ResponseEntity<Joiner> addNewJoiner (JoinerDTO joinerDTO) {
-        System.out.println("JoinerDTO " + joinerDTO);
-        System.out.println(JoinerMapper.toJoiner(joinerDTO));
+    public Either<String, Joiner> addNewJoiner (JoinerDTO joinerDTO) {
         Joiner joiner = joinerRepository.save(JoinerMapper.toJoiner(joinerDTO));
-        System.out.println("Joiner "+joiner);
-        return new ResponseEntity<>(joiner, HttpStatus.OK);
+        if(joiner == null){
+            return Either.left("Joiner not found");
+        }
+        return Either.right(joiner);
     }
 
-    public ResponseEntity<Joiner> getJoiner(int joinerId){
-        System.out.print(joinerId);
+    public Either<String, Joiner> getJoiner(int joinerId){
         Optional<Joiner> joiner = joinerRepository.findById(joinerId);
-        if( joiner.isEmpty() ){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        if( joiner.isEmpty()){
+            return Either.left("Joiner not found");
         }
-        return new ResponseEntity<>(joiner.get(), HttpStatus.OK);
+        return Either.right(joiner.get());
     }
 
-    public ResponseEntity<Joiner> updateJoiner(int joinerId, JoinerDTO joinerDTO){;
-        Optional<Joiner> joiner = joinerRepository.findById(joinerDTO.getIdentificationNumber());
-        if( joiner.isEmpty() ){
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+    public Either<String, Joiner> updateJoiner(int joinerId, JoinerDTO joinerDTO){;
+        Optional<Joiner> joiner = joinerRepository.findById(joinerId);
+
+        if( joiner.isEmpty()){
+            return Either.left("Joiner not found");
         }
 
-        return new ResponseEntity<>(joiner.get(), HttpStatus.OK);
+        Joiner joinerToUpdate = JoinerMapper.toJoiner(joiner.get(),joinerDTO);
+        Joiner joinerUpdated = joinerRepository.save(joinerToUpdate);
+
+        if( joinerUpdated == null) {
+            return Either.left("Joiner not updated");
+        }
+        return Either.right(joinerUpdated);
     }
 }

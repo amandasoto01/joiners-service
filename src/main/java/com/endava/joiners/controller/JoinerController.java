@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.vavr.control.Either;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +29,12 @@ public class JoinerController {
                     })
     @ResponseStatus(HttpStatus.OK)
     @PostMapping
-    public ResponseEntity<Joiner> postJoiner(@RequestBody JoinerDTO joinerDTO) {
-        return joinerService.addNewJoiner(joinerDTO);
+    public ResponseEntity<Joiner> addNewJoiner(@RequestBody JoinerDTO joinerDTO) {
+        Either<String, Joiner> eitherJoiner = joinerService.addNewJoiner(joinerDTO);
+        if (eitherJoiner.isLeft()) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(eitherJoiner.get(), HttpStatus.OK);
     }
 
     @Operation(summary = "Update a Joiner")
@@ -43,8 +48,12 @@ public class JoinerController {
                     content = @Content)})
     @PutMapping("/{joiner_id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Joiner> updateJoiner(@PathVariable int joinerId, JoinerDTO joinerDTO) {
-        return joinerService.updateJoiner(joinerId, joinerDTO);
+    public ResponseEntity<Joiner> updateJoiner(@PathVariable("joiner_id") int joinerId, @RequestBody JoinerDTO joinerDTO) {
+        Either<String, Joiner> eitherJoiner = joinerService.updateJoiner(joinerId,joinerDTO);
+        if (eitherJoiner.isLeft()) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(eitherJoiner.get(), HttpStatus.OK);
     }
 
     @Operation(summary = "Get joiner information")
@@ -56,8 +65,13 @@ public class JoinerController {
                     content = @Content) })
     @GetMapping("/{joiner_id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Joiner> getJoiner(@PathVariable int joinerId) {
-        return joinerService.getJoiner(joinerId);
+    public ResponseEntity<Joiner> getJoiner(@PathVariable("joiner_id") int joinerId) {
+        Either<String, Joiner> eitherJoiner = joinerService.getJoiner(joinerId);
+
+        if (eitherJoiner.isLeft()) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(eitherJoiner.get(), HttpStatus.OK);
     }
 
 }
