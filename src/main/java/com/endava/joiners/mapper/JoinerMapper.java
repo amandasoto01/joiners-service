@@ -12,7 +12,7 @@ public class JoinerMapper {
         joiner.setLastName(joinerDTO.getLastName());
         joiner.setStack(joinerDTO.getStack());
         joiner.setRole(joinerDTO.getRole());
-        joiner.setEnglishLevel(joinerDTO.getEnglishLevel());
+        joiner.setEnglishLevel(String.valueOf(joinerDTO.getEnglishLevel()));
         joiner.setDomainExperience(joinerDTO.getDomainExperience());
         joiner.setName(joinerDTO.getName());
         return joiner;
@@ -24,7 +24,7 @@ public class JoinerMapper {
         joiner.setLastName(joinerDTO.getLastName());
         joiner.setStack(joinerDTO.getStack());
         joiner.setRole(joinerDTO.getRole());
-        joiner.setEnglishLevel(joinerDTO.getEnglishLevel());
+        joiner.setEnglishLevel(joinerDTO.getEnglishLevel().toString());
         joiner.setDomainExperience(joinerDTO.getDomainExperience());
         joiner.setName(joinerDTO.getName());
         return joiner;
