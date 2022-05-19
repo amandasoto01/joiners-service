@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 public class JoinerServiceImpl implements JoinerService{
@@ -40,7 +43,7 @@ public class JoinerServiceImpl implements JoinerService{
             return Either.left("Joiner not found");
         }
 
-        Joiner joinerToUpdate = JoinerMapper.toJoiner(joiner.get(),joinerDTO);
+        Joiner joinerToUpdate = JoinerMapper.toJoinerDTO(joiner.get());
         Joiner joinerUpdated = joinerRepository.save(joinerToUpdate);
 
         if( joinerUpdated == null) {
@@ -56,6 +59,37 @@ public class JoinerServiceImpl implements JoinerService{
 
         } catch (EmptyResultDataAccessException ex) {
             return Either.left("Joiner not found");
+        }
+    }
+
+    public Either<String,List<JoinerDTO>> getJoiners(String field, String value) {
+        List<Joiner> joiners = getJoinersByField(field,value);
+
+        if(joiners.isEmpty()) {
+            return Either.left("Joiners by field " + field + " with value " + value + " not found");
+        }
+
+        List joinersDto = joiners
+                .stream()
+                .map( joiner -> JoinerMapper.toJoinerDTO(joiner))
+                .collect(Collectors.toList());
+
+        return Either.right(joinersDto);
+    }
+
+    private List<Joiner> getJoinersByField (String field, String value){
+        List<Joiner> joiners;
+
+        if (field.equals("stack")) {
+            return joinerRepository.findByStack(value);
+        } else if(field.equals("role")) {
+            return joinerRepository.findByRole(value);
+        } else if(field.equals("englishLevel")) {
+            return joinerRepository.findByEnglishLevel(value);
+        } else if(field.equals("domainExperience")){
+           return joinerRepository.findByDomainExperience(value);
+        } else {
+            return new ArrayList<Joiner>();
         }
     }
 }

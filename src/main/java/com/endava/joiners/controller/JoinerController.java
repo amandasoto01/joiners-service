@@ -15,12 +15,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/joiner")
 public class JoinerController {
     @Autowired
-    JoinerService joinerService;
+    JoinerService joinerServiceImpl;
 
     @Operation(summary = "Create a joiner")
     @ApiResponses(value = {
@@ -30,10 +34,10 @@ public class JoinerController {
                     })
     @ResponseStatus(HttpStatus.OK)
     @PostMapping(produces = "application/json")
-    public ResponseEntity<Object> addNewJoiner(@RequestBody JoinerDTO joinerDTO) {
-        Either<String, Joiner> eitherJoiner = joinerService.addNewJoiner(joinerDTO);
+    public ResponseEntity<Object> addNewJoiner(@Valid @RequestBody JoinerDTO joinerDTO) {
+        Either<String, Joiner> eitherJoiner = joinerServiceImpl.addNewJoiner(joinerDTO);
         if (eitherJoiner.isLeft()) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Could not add new joiner", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(eitherJoiner.get(), HttpStatus.OK);
     }
@@ -49,8 +53,8 @@ public class JoinerController {
                     content = @Content)})
     @PutMapping(value = "/{joiner_id}", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Joiner> updateJoiner(@PathVariable("joiner_id") int joinerId, @RequestBody JoinerDTO joinerDTO) {
-        Either<String, Joiner> eitherJoiner = joinerService.updateJoiner(joinerId,joinerDTO);
+    public ResponseEntity<Joiner> updateJoiner(@PathVariable("joiner_id") int joinerId, @Valid @RequestBody JoinerDTO joinerDTO) {
+        Either<String, Joiner> eitherJoiner = joinerServiceImpl.updateJoiner(joinerId,joinerDTO);
         if (eitherJoiner.isLeft()) {
             throw new JoinerNotFoundException(eitherJoiner.getLeft());
         }
@@ -67,14 +71,14 @@ public class JoinerController {
     @GetMapping(value = "/{joiner_id}", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Joiner> getJoiner(@PathVariable("joiner_id") int joinerId) {
-        Either<String, Joiner> eitherJoiner = joinerService.getJoiner(joinerId);
+        Either<String, Joiner> eitherJoiner = joinerServiceImpl.getJoiner(joinerId);
         if (eitherJoiner.isLeft()) {
             throw new JoinerNotFoundException(eitherJoiner.getLeft());
         }
         return new ResponseEntity<>(eitherJoiner.get(), HttpStatus.OK);
     }
 
-    @Operation(summary = "Get joiner information")
+    @Operation(summary = "Delete joiner information")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Found the joiner",
                     content = { @Content(mediaType = "application/json",
@@ -84,11 +88,30 @@ public class JoinerController {
     @DeleteMapping(value = "/{joiner_id}", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<String> deleteJoiner(@PathVariable("joiner_id") int joinerId) {
-        Either<String, String> eitherJoiner = joinerService.deleteJoiner(joinerId);
+        Either<String, String> eitherJoiner = joinerServiceImpl.deleteJoiner(joinerId);
         if (eitherJoiner.isLeft()) {
             throw new JoinerNotFoundException(eitherJoiner.getLeft());
         }
         return new ResponseEntity<>(eitherJoiner.get(), HttpStatus.OK);
+    }
+
+    @Operation(summary = "Get a list of joiners")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found the joiner",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = JoinerDTO.class)) }),
+            @ApiResponse(responseCode = "404", description = "Joiner not found",
+                    content = @Content) })
+    @GetMapping(value = "/list", produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<JoinerDTO>> getJoiners(@RequestParam("field") String field, @RequestParam("value") String value) {
+        Either<String,List<JoinerDTO>> joiners = joinerServiceImpl.getJoiners(field, value);
+
+        if (joiners.isLeft()) {
+            throw new JoinerNotFoundException(joiners.getLeft());
+        }
+        
+        return new ResponseEntity<>(joiners.get(), HttpStatus.OK);
     }
 
 }

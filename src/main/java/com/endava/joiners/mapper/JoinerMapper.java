@@ -18,15 +18,16 @@ public class JoinerMapper {
         return joiner;
     }
 
-    public static Joiner toJoiner (Joiner joiner, JoinerDTO joinerDTO) {
-        joiner.setIdentificationNumber(joinerDTO.getIdentificationNumber());
-        joiner.setName(joinerDTO.getName());
-        joiner.setLastName(joinerDTO.getLastName());
-        joiner.setStack(joinerDTO.getStack());
-        joiner.setRole(joinerDTO.getRole());
-        joiner.setEnglishLevel(joinerDTO.getEnglishLevel().toString());
-        joiner.setDomainExperience(joinerDTO.getDomainExperience());
-        joiner.setName(joinerDTO.getName());
+    public static Joiner toJoinerDTO (Joiner joiner) {
+        JoinerDTO joinerDTO = new JoinerDTO();
+        joinerDTO.setIdentificationNumber(joiner.getIdentificationNumber());
+        joinerDTO.setName(joiner.getName());
+        joinerDTO.setLastName(joiner.getLastName());
+        joinerDTO.setStack(joiner.getStack());
+        joinerDTO.setRole(joiner.getRole());
+        joinerDTO.setEnglishLevel(JoinerDTO.EnglishLevel.valueOf(joiner.getEnglishLevel()));
+        joinerDTO.setDomainExperience(joiner.getDomainExperience());
+        joinerDTO.setName(joiner.getName());
         return joiner;
     }
 
